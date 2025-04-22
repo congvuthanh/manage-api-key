@@ -1,15 +1,16 @@
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 type CreateApiKeyModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (name: string, type: 'dev' | 'prod') => void;
+  onCreateApiKey: (name: string, type: 'dev' | 'prod') => void;
 };
 
 export const CreateApiKeyModal = ({
   isOpen,
   onClose,
-  onCreate,
+  onCreateApiKey,
 }: CreateApiKeyModalProps) => {
   const [keyName, setKeyName] = useState("");
   const [keyType, setKeyType] = useState<'dev' | 'prod'>('dev');
@@ -22,7 +23,7 @@ export const CreateApiKeyModal = ({
 
   const handleSubmit = () => {
     if (!keyName.trim()) return;
-    onCreate(keyName, keyType);
+    onCreateApiKey(keyName, keyType);
     setKeyName("");
     setKeyType('dev');
     setLimitUsage(false);
@@ -172,23 +173,24 @@ export const CreateApiKeyModal = ({
         </div>
 
         <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 flex justify-end gap-3">
-          <button
+          <Button
             onClick={handleCancel}
-            className="px-5 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium"
+            variant="outline"
+            className="px-5 py-2"
             tabIndex={0}
             aria-label="Cancel creating new API key"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSubmit}
-            className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+            className="px-5 py-2"
             disabled={!keyName.trim()}
             tabIndex={0}
             aria-label="Create new API key"
           >
             Create
-          </button>
+          </Button>
         </div>
       </div>
     </div>

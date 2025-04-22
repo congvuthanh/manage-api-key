@@ -3,40 +3,50 @@
 import { ApiKeyDetail } from "@/components/ApiKeyDetail";
 import { ApiKeyList } from "@/components/ApiKeyList";
 import { CreateApiKeyModal } from "@/components/CreateApiKeyModal";
+import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
 import { EditApiKeyModal } from "@/components/EditApiKeyModal";
+import { useNotification } from "@/components/Notification";
+import { PlusIcon } from "@/components/icons/PlusIcon";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { ApiKey, useApiKeys } from "@/hooks/useApiKeys";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 export default function ApiKeysDashboard() {
-  const { apiKeys, createApiKey, deleteApiKey, updateApiKey } = useApiKeys();
+  const { apiKeys, createApiKey, deleteApiKey, updateApiKey, loading, error } = useApiKeys();
+  const { showNotification } = useNotification();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedKey, setSelectedKey] = useState<ApiKey | null>(null);
   const [keyToEdit, setKeyToEdit] = useState<ApiKey | null>(null);
   const [keyToDelete, setKeyToDelete] = useState<string | null>(null);
 
-  const handleCreateKey = (name: string, type: 'dev' | 'prod') => {
+  const handleCreateKey = async (name: string, type: 'dev' | 'prod') => {
     if (!name.trim()) return;
-    createApiKey(name, type);
-    setShowCreateModal(false);
+    const newKey = await createApiKey(name, type);
+    if (newKey) {
+      showNotification(`API key "${name}" created successfully`);
+      setShowCreateModal(false);
+    }
   };
 
   const handleDeleteKey = (id: string) => {
     setKeyToDelete(id);
-    setShowDeleteModal(true);
+    setShowDetailModal(false);
   };
 
-  const confirmDeleteKey = () => {
+  const confirmDeleteKey = async () => {
     if (keyToDelete) {
-      deleteApiKey(keyToDelete);
+      const keyName = apiKeys.find(k => k.id === keyToDelete)?.name || 'API key';
+      await deleteApiKey(keyToDelete);
+      showNotification(`"${keyName}" deleted successfully`, 'error');
+
       if (selectedKey?.id === keyToDelete) {
         setSelectedKey(null);
-        setShowDetailModal(false);
       }
-      setShowDeleteModal(false);
       setKeyToDelete(null);
     }
   };
@@ -55,8 +65,9 @@ export default function ApiKeysDashboard() {
     setShowEditModal(true);
   };
 
-  const handleSaveEdit = (id: string, name: string) => {
-    updateApiKey(id, { name });
+  const handleSaveEdit = async (id: string, name: string) => {
+    await updateApiKey(id, { name });
+    showNotification(`API key "${name}" updated successfully`);
 
     // Update selected key if it was the one edited
     if (selectedKey?.id === id) {
@@ -180,41 +191,58 @@ export default function ApiKeysDashboard() {
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">API Keys</h2>
-            <button
+            <Button
               onClick={() => setShowCreateModal(true)}
-              className="text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-3 py-1 rounded-md text-sm font-medium"
-              tabIndex={0}
-              aria-label="Create new API key"
+              className="flex items-center gap-2"
             >
-              <span className="inline-flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Create
-              </span>
-            </button>
+              <PlusIcon className="h-4 w-4" />
+              <span>Create API Key</span>
+            </Button>
           </div>
 
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            The key is used to authenticate your requests to the API. To learn more, see the <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">documentation</a> page.
-          </p>
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-          <ApiKeyList
-            apiKeys={apiKeys}
-            selectedKeyId={selectedKey?.id}
-            onKeyClick={handleKeyClick}
-            onDeleteKey={handleDeleteKey}
-            onEditKey={handleEditKey}
-            onKeyDoubleClick={handleKeyDoubleClick}
-          />
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+              <span className="ml-2 text-lg text-gray-500">Loading API keys...</span>
+            </div>
+          ) : apiKeys.length === 0 ? (
+            <div className="bg-gray-50 rounded-lg p-8 text-center">
+              <h2 className="text-xl font-semibold mb-2">No API Keys Found</h2>
+              <p className="text-gray-600 mb-4">
+                You haven&apos;t created any API keys yet. Create one to get started.
+              </p>
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2 mx-auto"
+              >
+                <PlusIcon className="h-4 w-4" />
+                <span>Create API Key</span>
+              </Button>
+            </div>
+          ) : (
+            <ApiKeyList
+              apiKeys={apiKeys}
+              selectedKeyId={selectedKey?.id}
+              onKeyClick={handleKeyClick}
+              onDeleteKey={handleDeleteKey}
+              onEditKey={handleEditKey}
+              onKeyDoubleClick={handleKeyDoubleClick}
+            />
+          )}
         </div>
       </main>
 
       <CreateApiKeyModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onCreate={handleCreateKey}
+        onCreateApiKey={handleCreateKey}
       />
 
       <EditApiKeyModal
@@ -255,47 +283,13 @@ export default function ApiKeysDashboard() {
       )}
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                Delete API Key
-              </h3>
-            </div>
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-full mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300">Are you sure you want to delete this API key? This action cannot be undone.</p>
-              </div>
-            </div>
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setKeyToDelete(null);
-                }}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium"
-                tabIndex={0}
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDeleteKey}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm font-medium"
-                tabIndex={0}
-                type="button"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+      {keyToDelete && (
+        <DeleteConfirmModal
+          isOpen={keyToDelete !== null}
+          onClose={() => setKeyToDelete(null)}
+          onConfirm={confirmDeleteKey}
+          keyName={apiKeys.find(k => k.id === keyToDelete)?.name || 'this API key'}
+        />
       )}
     </div>
   );

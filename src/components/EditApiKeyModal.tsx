@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { ApiKey } from "@/hooks/useApiKeys";
 import { useEffect, useState } from "react";
 
@@ -102,23 +103,24 @@ export const EditApiKeyModal = ({
         </div>
 
         <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 flex justify-end gap-3">
-          <button
+          <Button
             onClick={handleCancel}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm"
+            variant="outline"
+            className="px-4 py-2"
             tabIndex={0}
             aria-label="Cancel editing API key"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className="px-4 py-2"
             disabled={!keyName.trim() || keyName === apiKey.name}
             tabIndex={0}
             aria-label="Save API key changes"
           >
             Save
-          </button>
+          </Button>
         </div>
       </div>
     </div>

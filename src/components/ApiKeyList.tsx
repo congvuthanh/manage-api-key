@@ -1,5 +1,6 @@
 import { ApiKey } from "@/hooks/useApiKeys";
 import { useState } from "react";
+import { useNotification } from "./Notification";
 
 type ApiKeyListProps = {
   apiKeys: ApiKey[];
@@ -19,6 +20,7 @@ export const ApiKeyList = ({
   onKeyDoubleClick,
 }: ApiKeyListProps) => {
   const [visibleKeys, setVisibleKeys] = useState<Record<string, boolean>>({});
+  const { showNotification } = useNotification();
 
   const toggleKeyVisibility = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -32,6 +34,18 @@ export const ApiKeyList = ({
     e.preventDefault();
     if (onKeyDoubleClick) {
       onKeyDoubleClick(key);
+    }
+  };
+
+  const handleCopyToClipboard = (text: string, keyName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      navigator.clipboard.writeText(text);
+      // Show notification using the global notification system
+      showNotification('Copied API Key to clipboard', 'success');
+    } catch (err) {
+      console.error("Failed to copy text:", err);
+      showNotification('Failed to copy API key', 'error');
     }
   };
 
@@ -139,14 +153,7 @@ export const ApiKeyList = ({
                     </svg>
                   </button>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      try {
-                        navigator.clipboard.writeText(key.key);
-                      } catch (err) {
-                        console.error("Failed to copy text:", err);
-                      }
-                    }}
+                    onClick={(e) => handleCopyToClipboard(key.key, key.name, e)}
                     className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
                     tabIndex={0}
                     aria-label={`Copy ${key.name} key`}
