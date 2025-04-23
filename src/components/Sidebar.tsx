@@ -6,10 +6,14 @@ import { useState } from "react";
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  activePath?: string;
 }
 
-export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: SidebarProps) {
   const [accountExpanded, setAccountExpanded] = useState(false);
+
+  // Helper function to determine if a path is active
+  const isActive = (path: string) => activePath === path;
 
   return (
     <aside className={`${isCollapsed ? 'w-16' : 'w-56'} min-h-screen border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col transition-all duration-300 relative`}>
@@ -44,7 +48,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             <path d="M11.5835 3.33317L22.3335 8.33317L17.3335 19.9998L6.5835 14.9998L11.5835 3.33317Z" fill="#FBBC05" />
           </svg>
           {!isCollapsed && (
-            <span className="text-xl font-semibold text-gray-900 dark:text-white">Univer</span>
+            <span className="text-xl font-semibold text-gray-900 dark:text-white">tavily</span>
           )}
         </Link>
       </div>
@@ -78,10 +82,24 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           <li>
             <Link
               href="/dashboards"
-              className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700`}
+              className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-3 py-2 text-sm font-medium rounded-md 
+                ${isActive('/dashboards')
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
               title={isCollapsed ? "Overview" : ""}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isCollapsed ? '' : 'mr-3'}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`${isCollapsed ? '' : 'mr-3'} ${isActive('/dashboards') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`}
+              >
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
@@ -91,10 +109,24 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           <li>
             <Link
               href="/api-playground"
-              className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700`}
+              className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-3 py-2 text-sm font-medium rounded-md 
+                ${isActive('/api-playground')
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
               title={isCollapsed ? "API Playground" : ""}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isCollapsed ? '' : 'mr-3'}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`${isCollapsed ? '' : 'mr-3'} ${isActive('/api-playground') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`}
+              >
                 <polyline points="16 18 22 12 16 6"></polyline>
                 <polyline points="8 6 2 12 8 18"></polyline>
               </svg>
@@ -104,10 +136,24 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           <li>
             <Link
               href="/use-cases"
-              className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700`}
+              className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-3 py-2 text-sm font-medium rounded-md 
+                ${isActive('/use-cases')
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
               title={isCollapsed ? "Use Cases" : ""}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isCollapsed ? '' : 'mr-3'}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`${isCollapsed ? '' : 'mr-3'} ${isActive('/use-cases') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`}
+              >
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
                 <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -153,10 +199,24 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             <li>
               <Link
                 href="/account"
-                className="flex justify-center items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className={`flex justify-center items-center px-3 py-2 text-sm font-medium rounded-md 
+                  ${isActive('/account')
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 title="My Account"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={isActive('/account') ? 'text-blue-600 dark:text-blue-400' : ''}
+                >
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
@@ -166,10 +226,24 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           <li>
             <Link
               href="/documentation"
-              className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700`}
+              className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-3 py-2 text-sm font-medium rounded-md 
+                ${isActive('/documentation')
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
               title={isCollapsed ? "Documentation" : ""}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isCollapsed ? '' : 'mr-3'}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`${isCollapsed ? '' : 'mr-3'} ${isActive('/documentation') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`}
+              >
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                 <polyline points="15 3 21 3 21 9"></polyline>
                 <line x1="10" y1="14" x2="21" y2="3"></line>

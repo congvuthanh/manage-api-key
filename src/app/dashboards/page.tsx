@@ -97,7 +97,7 @@ export default function ApiKeysDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <Sidebar isCollapsed={sidebarCollapsed} onToggle={toggleSidebar} />
+      <Sidebar isCollapsed={sidebarCollapsed} onToggle={toggleSidebar} activePath="/dashboards" />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
