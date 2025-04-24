@@ -108,9 +108,9 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
           </li>
           <li>
             <Link
-              href="/api-playground"
+              href="/playground"
               className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-3 py-2 text-sm font-medium rounded-md 
-                ${isActive('/api-playground')
+                ${isActive('/playground')
                   ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
                   : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
               title={isCollapsed ? "API Playground" : ""}
@@ -125,7 +125,7 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`${isCollapsed ? '' : 'mr-3'} ${isActive('/api-playground') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`}
+                className={`${isCollapsed ? '' : 'mr-3'} ${isActive('/playground') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`}
               >
                 <polyline points="16 18 22 12 16 6"></polyline>
                 <polyline points="8 6 2 12 8 18"></polyline>
