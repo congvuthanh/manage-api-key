@@ -12,11 +12,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if the key exists in the database
+    // Check if the key exists in the database using multiple filter conditions
     const { data, error } = await supabase
       .from("api_keys")
       .select("id")
-      .or(`value.eq.${key},value.eq.tvly-dev-${key},value.eq.tvly-prod-${key}`)
+      .in("value", [key, `tvly-dev-${key}`, `tvly-prod-${key}`])
       .limit(1);
     
     if (error) {

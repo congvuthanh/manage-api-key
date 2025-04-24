@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/hooks/useSidebar";
 import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
-export default function ProtectedPage() {
+function ProtectedContent() {
   const { sidebarCollapsed, toggleSidebar } = useSidebar();
   const { showNotification } = useNotification();
   const searchParams = useSearchParams();
@@ -144,5 +144,18 @@ export default function ProtectedPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function ProtectedPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <span className="ml-2">Loading...</span>
+      </div>
+    }>
+      <ProtectedContent />
+    </Suspense>
   );
 } 
