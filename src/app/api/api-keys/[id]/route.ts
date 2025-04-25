@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET a specific API key by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }>}
 ) {
   // Verify authentication
   const authResult = await requireAuth();
@@ -14,7 +14,7 @@ export async function GET(
   }
 
   try {
-    const id = params.id;
+    const {id} = await params;
     
     if (!id) {
       return NextResponse.json(
@@ -54,7 +54,7 @@ export async function GET(
 // UPDATE an API key
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }>}
 ) {
   // Verify authentication
   const authResult = await requireAuth();
@@ -63,7 +63,7 @@ export async function PUT(
   }
 
   try {
-    const id = params.id;
+    const {id} = await params;
     
     if (!id) {
       return NextResponse.json(
@@ -115,7 +115,7 @@ export async function PUT(
 // DELETE an API key
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }>}
 ) {
   // Verify authentication
   const authResult = await requireAuth();
@@ -124,7 +124,7 @@ export async function DELETE(
   }
 
   try {
-    const id = params.id;
+    const {id} = await params;
     
     if (!id) {
       return NextResponse.json(
