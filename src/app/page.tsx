@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useState } from "react"
 
+import { ApiDemo } from "@/components/ApiDemo"
 import { AuthButton } from "@/components/AuthButton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -302,6 +303,20 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* API Demo Section */}
+        <section className="container space-y-6 bg-slate-50 py-8 dark:bg-slate-900 md:py-12 lg:py-24" id="api-demo">
+          <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+            <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-5xl">Try Our API</h2>
+            <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+              Experience the power of our GitHub Analyzer API with this interactive demo
+            </p>
+          </div>
+          <div className="mx-auto md:max-w-[64rem]">
+            <ApiDemo />
+          </div>
+        </section>
+
         <section className="container space-y-6 py-8 md:py-12 lg:py-24" id="pricing">
           <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
             <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-5xl text-center mx-auto w-full">Simple, Transparent Pricing</h2>
@@ -379,13 +394,14 @@ export default function LandingPage() {
               </CardFooter>
             </Card>
             {/* Pro Tier */}
-            <Card className="flex flex-col border-primary group hover:-translate-y-1 transition-all duration-200 hover:shadow-xl shadow-md relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/10 dark:to-blue-950/5 opacity-50"></div>
+            <Card className="flex flex-col border-indigo-100 dark:border-indigo-800/30 hover:border-indigo-300 dark:hover:border-indigo-700 group hover:-translate-y-1 transition-all duration-200 hover:shadow-xl shadow-md relative overflow-hidden">
               <CardHeader className="relative">
                 <div className="flex items-center justify-between">
                   <CardTitle>Pro</CardTitle>
-                  <Badge className="bg-gradient-to-r from-indigo-500 to-blue-600 text-white border-0">Popular</Badge>
                 </div>
+                <Badge variant="outline" className="w-fit mb-2">
+                  Coming Soon
+                </Badge>
                 <CardDescription>For developers who need more</CardDescription>
               </CardHeader>
               <CardContent className="grid flex-1 place-items-start gap-4">
@@ -475,10 +491,11 @@ export default function LandingPage() {
               <CardFooter>
                 <Button
                   className="w-full"
-                  onClick={() => window.location.href = '/signup'}
-                  aria-label="Get started with pro plan"
+                  disabled
+                  variant="outline"
+                  aria-label="Pro tier coming soon"
                 >
-                  Get Started
+                  Coming Soon
                 </Button>
               </CardFooter>
             </Card>
@@ -486,6 +503,9 @@ export default function LandingPage() {
             <Card className="flex flex-col group border-indigo-100 dark:border-indigo-800/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
               <CardHeader>
                 <CardTitle>Enterprise</CardTitle>
+                <Badge variant="outline" className="w-fit mb-2">
+                  Coming Soon
+                </Badge>
                 <CardDescription>For teams and organizations</CardDescription>
               </CardHeader>
               <CardContent className="grid flex-1 place-items-start gap-4">
@@ -591,10 +611,10 @@ export default function LandingPage() {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={() => window.location.href = '/contact'}
-                  aria-label="Contact sales for enterprise plan"
+                  disabled
+                  aria-label="Enterprise tier coming soon"
                 >
-                  Contact Sales
+                  Coming Soon
                 </Button>
               </CardFooter>
             </Card>

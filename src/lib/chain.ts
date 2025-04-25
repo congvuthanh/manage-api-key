@@ -28,7 +28,7 @@ export async function createSummarizationChain(readmeContent: string) {
 
   // Initialize the model with structured output
   const model = new ChatOpenAI({
-    modelName: "gpt-3.5-turbo",
+    modelName: "gpt-4o-mini",
     temperature: 0.5,
   }).withStructuredOutput(schema);
 
