@@ -10,14 +10,14 @@ export async function POST(request: NextRequest) {
     
     if (!key) {
       return NextResponse.json(
-        { success: false, message: "No API key provided" },
+        { message: "No API key provided" },
         { status: 400 }
       );
     }
 
     if (!githubUrl) {
       return NextResponse.json(
-        { success: false, message: "No GitHub repository URL provided" },
+        { message: "No GitHub repository URL provided" },
         { status: 400 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error("Error validating API key:", error);
       return NextResponse.json(
-        { success: false, message: "Error validating API key" },
+        { message: "Error validating API key" },
         { status: 500 }
       );
     }
@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
     
     if (!isValid) {
       return NextResponse.json({ 
-        success: false,
         message: "Invalid API key"
       }, { status: 401 });
     }
@@ -52,20 +51,16 @@ export async function POST(request: NextRequest) {
     // Use the LangChain summarization chain
     const summaryData = await createSummarizationChain(readmeContent);
 
-    return NextResponse.json({ 
-      success: true,
-      message: "GitHub repository summarization completed",
-      data: {
-        repoUrl: githubUrl,
-        summary: summaryData.summary,
-        coolFacts: summaryData.cool_facts
-      }
+    // Return just the summary and cool_facts for successful response
+    return NextResponse.json({
+      summary: summaryData.summary,
+      cool_facts: summaryData.cool_facts
     });
     
   } catch (error) {
     console.error("Error processing GitHub summarization:", error);
     return NextResponse.json(
-      { success: false, message: "Server error" },
+      { message: "Server error" },
       { status: 500 }
     );
   }
