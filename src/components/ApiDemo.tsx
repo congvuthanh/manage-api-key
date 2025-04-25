@@ -6,21 +6,55 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Book, Send } from "lucide-react"
+import { signIn, useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 interface ApiResponse {
   summary: string
   cool_facts: string[]
+  stars: number
+  latest_version: string
+  website_url: string
+  license: string
 }
 
 export function ApiDemo() {
+  const { status } = useSession()
+  const router = useRouter()
   const defaultPayload = JSON.stringify({ githubUrl: "https://github.com/assafelovic/gpt-researcher" }, null, 2)
   const [payload, setPayload] = useState(defaultPayload)
-  const [response, setResponse] = useState<ApiResponse | null>(null)
+  const [response, setResponse] = useState<ApiResponse>({
+    summary: "LangChain is a framework designed for building applications powered by Large Language Models (LLMs). It simplifies AI application development by allowing developers to chain together components and integrate with third-party services. The framework supports real-time data augmentation and model interoperability, making it adaptable as technology evolves. LangChain can be used standalone or in conjunction with other tools like LangSmith and LangGraph for enhanced capabilities.",
+    cool_facts: [
+      "Supports real-time data augmentation by connecting LLMs to various data sources.",
+      "Facilitates model interoperability, allowing developers to easily swap models as needed.",
+      "Integrates with tools like LangSmith for agent evaluation and observability, and LangGraph for complex task orchestration.",
+      "Trusted by companies such as LinkedIn, Uber, Klarna, and GitLab for production workflows."
+    ],
+    stars: 106344,
+    latest_version: "langchain-core==0.3.56",
+    website_url: "https://python.langchain.com",
+    license: "MIT License"
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const handleSendRequest = async () => {
+    // Check authentication status
+    if (status === "unauthenticated") {
+      // Redirect to login if not authenticated
+      signIn("google")
+      return
+    }
+
+    if (status === "authenticated") {
+      // Redirect to playground if authenticated
+      router.push("/playground")
+      return
+    }
+
+    // Only proceed with API call if loading/checking auth
     setIsLoading(true)
     setError(null)
 
@@ -42,15 +76,20 @@ export function ApiDemo() {
 
       // Simulate response
       setResponse({
-        summary: "GPT Researcher is an autonomous agent designed for comprehensive online research on various tasks. It aims to produce detailed, factual, and unbiased research reports by leveraging AI technology. The project addresses issues of misinformation, speed, determinism, and reliability in research tasks.",
+        summary: "LangChain is a framework designed for building applications powered by Large Language Models (LLMs). It simplifies AI application development by allowing developers to chain together components and integrate with third-party services. The framework supports real-time data augmentation and model interoperability, making it adaptable as technology evolves. LangChain can be used standalone or in conjunction with other tools like LangSmith and LangGraph for enhanced capabilities.",
         cool_facts: [
-          "The project leverages both 'gpt-4o-mini' and 'gpt-4o' (128K context) to complete research tasks, optimizing costs by using each only when necessary.",
-          "The average research task using GPT Researcher takes around 2 minutes to complete and costs approximately $0.005."
-        ]
+          "Supports real-time data augmentation by connecting LLMs to various data sources.",
+          "Facilitates model interoperability, allowing developers to easily swap models as needed.",
+          "Integrates with tools like LangSmith for agent evaluation and observability, and LangGraph for complex task orchestration.",
+          "Trusted by companies such as LinkedIn, Uber, Klarna, and GitLab for production workflows."
+        ],
+        stars: 106344,
+        latest_version: "langchain-core==0.3.56",
+        website_url: "https://python.langchain.com",
+        license: "MIT License"
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred")
-      setResponse(null)
     } finally {
       setIsLoading(false)
     }
@@ -108,7 +147,7 @@ export function ApiDemo() {
                 </div>
               ) : error ? (
                 <div className="text-destructive font-mono text-sm whitespace-pre-wrap">Error: {error}</div>
-              ) : response ? (
+              ) : (
                 <Tabs defaultValue="pretty">
                   <div className="flex justify-between items-center mb-2">
                     <TabsList>
@@ -131,14 +170,32 @@ export function ApiDemo() {
                           ))}
                         </ul>
                       </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <div className="font-medium">Stars</div>
+                          <p className="text-sm">{response.stars.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <div className="font-medium">Latest Version</div>
+                          <p className="text-sm">{response.latest_version}</p>
+                        </div>
+                        <div>
+                          <div className="font-medium">Website</div>
+                          <a href={response.website_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline">
+                            {response.website_url}
+                          </a>
+                        </div>
+                        <div>
+                          <div className="font-medium">License</div>
+                          <p className="text-sm">{response.license}</p>
+                        </div>
+                      </div>
                     </div>
                   </TabsContent>
                   <TabsContent value="raw" className="mt-0">
                     <pre className="font-mono text-xs whitespace-pre-wrap">{JSON.stringify(response, null, 2)}</pre>
                   </TabsContent>
                 </Tabs>
-              ) : (
-                <div className="text-muted-foreground text-sm italic">Send a request to see the response</div>
               )}
             </div>
           </div>

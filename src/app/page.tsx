@@ -348,7 +348,7 @@ export default function LandingPage() {
                       >
                         <path d="M20 6 9 17l-5-5" />
                       </svg>
-                      Up to 5 repositories
+                      Basic repository insights
                     </li>
                     <li className="flex items-center">
                       <svg
@@ -363,7 +363,7 @@ export default function LandingPage() {
                       >
                         <path d="M20 6 9 17l-5-5" />
                       </svg>
-                      Basic repository insights
+                      Limited to 1000 requests per day
                     </li>
                     <li className="flex items-center">
                       <svg
