@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase";
 import NextAuth, { Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -36,6 +37,43 @@ const handler = NextAuth({
         token.id = user.id;
       }
       return token;
+    },
+    async signIn({ user, account }) {
+      if (!user || !account) return true;
+      
+      try {
+        // Check if user already exists
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', user.email)
+          .single();
+          
+        // If user doesn't exist, create them
+        if (!existingUser) {
+          const { error } = await supabase
+            .from('users')
+            .insert([
+              {
+                email: user.email,
+                name: user.name,
+                image: user.image,
+                provider: account.provider,
+                created_at: new Date().toISOString(),
+              }
+            ]);
+            
+          if (error) {
+            console.error('Error adding user to Supabase:', error);
+            return false;
+          }
+        }
+        
+        return true;
+      } catch (error) {
+        console.error('Failed to check/add user to Supabase:', error);
+        return false;
+      }
     },
   },
 });
