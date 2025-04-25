@@ -16,4 +16,5 @@ export type ApiKeyRecord = {
   last_used?: string | null;
   type?: 'dev' | 'prod';
   user_id?: string | null;
+  limit?: number;
 }; 

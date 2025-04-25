@@ -1,19 +1,11 @@
+import { validateAndCheckRateLimit } from "@/lib/api-keys";
 import { createSummarizationChain } from "@/lib/chain";
-import { supabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
     const { githubUrl } = await request.json();
-
     const key = request.headers.get('x-api-key');
-    
-    if (!key) {
-      return NextResponse.json(
-        { message: "No API key provided" },
-        { status: 400 }
-      );
-    }
 
     if (!githubUrl) {
       return NextResponse.json(
@@ -22,28 +14,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if the key exists in the database using multiple filter conditions
-    const { data, error } = await supabase
-      .from("api_keys")
-      .select("id")
-      .in("value", [key, `tvly-dev-${key}`, `tvly-prod-${key}`])
-      .limit(1);
+    // Validate API key and check rate limit in one step
+    const validation = await validateAndCheckRateLimit(key);
     
-    if (error) {
-      console.error("Error validating API key:", error);
-      return NextResponse.json(
-        { message: "Error validating API key" },
-        { status: 500 }
-      );
-    }
-    
-    // If we found a match, the key is valid
-    const isValid = data && data.length > 0;
-    
-    if (!isValid) {
-      return NextResponse.json({ 
-        message: "Invalid API key"
-      }, { status: 401 });
+    if (!validation.isValid) {
+      return validation.response;
     }
     
     const readmeContent = await getGitHubReadme(githubUrl);
