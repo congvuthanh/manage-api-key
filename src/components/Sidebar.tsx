@@ -1,5 +1,7 @@
 "use client";
 
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -12,6 +14,14 @@ interface SidebarProps {
 export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: SidebarProps) {
   const [accountExpanded, setAccountExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { data: session, status } = useSession();
+  const user = session?.user;
+
+  // Helper function for direct sign out
+  const handleSignOut = (e: React.MouseEvent) => {
+    e.preventDefault();
+    signOut({ redirect: true, callbackUrl: '/' });
+  };
 
   // Helper function to determine if a path is active
   const isActive = (path: string) => activePath === path;
@@ -32,6 +42,25 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
+  // Generate user initials from name for fallback avatar
+  const getUserInitials = () => {
+    if (!user?.name) return "U";
+
+    const nameParts = user.name.split(" ");
+    if (nameParts.length >= 2) {
+      return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
+    }
+
+    return nameParts[0][0].toUpperCase();
+  };
+
+  // Get initials with proper length handling
+  const getDisplayInitials = () => {
+    const initials = getUserInitials();
+    // Limit to 2 characters maximum to prevent overflow
+    return initials.substring(0, 2);
+  };
+
   return (
     <>
       {/* Mobile overlay - shown when sidebar is open on mobile */}
@@ -44,10 +73,10 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
       )}
 
       <aside
-        className={`${isCollapsed ? 'w-0 md:w-16' : 'w-64 md:w-56'} 
+        className={`${isCollapsed ? 'w-0 md:w-16' : 'w-72 md:w-64'} 
                    min-h-screen border-r border-gray-200 dark:border-gray-700 
                    bg-white dark:bg-gray-800 flex flex-col transition-all duration-300 
-                   fixed md:static z-40 h-full overflow-y-auto`}
+                   fixed md:static z-40 h-full ${!isCollapsed ? 'overflow-hidden' : ''}`}
       >
         {/* Toggle button - with simplified positioning */}
         <div className="relative">
@@ -100,11 +129,11 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
 
         {/* Hide all content when fully collapsed on mobile */}
         {(!isCollapsed || !isMobile) && (
-          <>
+          <div className={`flex flex-col h-full ${!isCollapsed ? 'overflow-y-auto' : ''} ${isCollapsed ? 'py-4 space-y-4' : ''}`}>
             {/* Logo */}
-            <div className={`p-6 ${isCollapsed && !isMobile ? 'flex justify-center' : ''}`}>
+            <div className={`${isCollapsed ? 'px-4' : 'p-6'} ${isCollapsed && !isMobile ? 'flex justify-center' : ''}`}>
               <Link href="/" className="flex items-center">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={isCollapsed ? "" : "mr-2"}>
                   <path d="M7.0835 19.9998L14.1668 26.4998L3.3335 29.6665L7.0835 19.9998Z" fill="#4285F4" />
                   <path d="M23.6168 14.2498L29.6668 17.9165L24.6668 28.6665L18.6168 24.9998L23.6168 14.2498Z" fill="#EA4335" />
                   <path d="M11.5835 3.33317L22.3335 8.33317L17.3335 19.9998L6.5835 14.9998L11.5835 3.33317Z" fill="#FBBC05" />
@@ -115,8 +144,8 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
               </Link>
             </div>
 
-            {/* Personal section with avatar */}
-            {(!isCollapsed || isMobile) ? (
+            {/* Only show personal section when expanded */}
+            {(!isCollapsed || isMobile) && (
               <div className="mx-4 mb-6 p-2 bg-blue-50 dark:bg-gray-700 rounded-md flex items-center">
                 <div className="flex items-center">
                   <div className="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
@@ -134,17 +163,11 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
                   </svg>
                 </button>
               </div>
-            ) : (
-              <div className="flex justify-center mb-6">
-                <div className="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
-                  Vu
-                </div>
-              </div>
             )}
 
             {/* Navigation */}
-            <nav className="flex-1">
-              <ul className={`space-y-1 ${isCollapsed && !isMobile ? 'px-2' : 'px-3'}`}>
+            <nav className={`${isCollapsed ? '' : 'flex-1'}`}>
+              <ul className={`${isCollapsed ? 'space-y-4' : 'space-y-1'} ${isCollapsed && !isMobile ? 'px-0' : 'px-3'}`}>
                 <li>
                   <Link
                     href="/dashboards"
@@ -174,7 +197,7 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
                   </Link>
                 </li>
 
-                {/* Rest of the navigation items follow the same pattern */}
+                {/* API Playground */}
                 <li>
                   <Link
                     href="/playground"
@@ -204,9 +227,7 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
                   </Link>
                 </li>
 
-                {/* Continue with the rest of your navigation links following the same pattern */}
-
-                {/* My Account section */}
+                {/* My Account */}
                 {(!isCollapsed || isMobile) ? (
                   <li>
                     <button
@@ -282,34 +303,97 @@ export function Sidebar({ isCollapsed, onToggle, activePath = "/dashboards" }: S
               </ul>
             </nav>
 
-            {/* Sidebar footer */}
-            <div className="p-4 mt-auto border-t border-gray-200 dark:border-gray-700">
-              <a
-                href="https://github.com/user/univer-github-analyzer"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex items-center ${isCollapsed && !isMobile ? 'justify-center' : ''} text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200`}
-                tabIndex={0}
-                aria-label="View project on GitHub"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className={isCollapsed && !isMobile ? '' : 'mr-2'}
-                >
-                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                </svg>
-                {(!isCollapsed || isMobile) && "GitHub"}
-              </a>
-            </div>
-          </>
+            {/* User Profile at the bottom - only show if authenticated */}
+            {status === "authenticated" && user && (
+              <div className={`mt-auto border-t border-gray-200 dark:border-gray-700`}>
+                {!isCollapsed || isMobile ? (
+                  <div className="p-4">
+                    <div className="flex items-center">
+                      <div className="relative w-10 h-10 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center">
+                        {user.image ? (
+                          <Image
+                            src={user.image}
+                            alt="Profile picture"
+                            width={40}
+                            height={40}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <span className="text-white text-xs font-medium tracking-wider">{getDisplayInitials()}</span>
+                        )}
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name || "User"}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email || ""}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <button
+                        onClick={handleSignOut}
+                        className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="mr-2"
+                        >
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                          <polyline points="16 17 21 12 16 7"></polyline>
+                          <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center py-4 space-y-4">
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center">
+                      {user.image ? (
+                        <Image
+                          src={user.image}
+                          alt="Profile picture"
+                          width={32}
+                          height={32}
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span className="text-white text-[10px] font-medium tracking-wider">{getDisplayInitials()}</span>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={handleSignOut}
+                      className="flex items-center justify-center w-8 h-8 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      title="Sign out"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </aside>
     </>

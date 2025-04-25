@@ -61,9 +61,11 @@ export default function APIPlayground() {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Sidebar */}
       <Sidebar isCollapsed={sidebarCollapsed} onToggle={toggleSidebar} activePath="/playground" />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Main content */}
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'md:ml-16' : 'md:ml-56'}`}>
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="px-4 sm:px-6 lg:px-8 py-4">
             <h1 className="text-xl font-semibold text-gray-900 dark:text-white">GitHub Repository Summarizer</h1>
