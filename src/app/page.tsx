@@ -1,8 +1,9 @@
 "use client"
 
-import { ArrowRight, BarChart3, GitCompare, Github, GitPullRequest, Layout, Star } from "lucide-react"
+import { ArrowRight, BarChart3, GitCompare, Github, GitPullRequest, Layout, Menu, Star, X } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
+import { useState } from "react"
 
 import { AuthButton } from "@/components/AuthButton"
 import { Badge } from "@/components/ui/badge"
@@ -11,17 +12,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 export default function LandingPage() {
   const { data: session, status } = useSession();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col px-4 md:px-8">
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-          <div className="flex gap-6 md:gap-10">
+          <div className="flex items-center gap-6 md:gap-10">
             <Link href="/" className="flex items-center space-x-2" tabIndex={0} aria-label="Home">
               <Github className="h-6 w-6" />
               <span className="inline-block font-bold">Univer Github Analyzer</span>
             </Link>
-            <nav className="hidden gap-6 md:flex">
+            <nav className="hidden md:flex gap-6">
               <Link
                 href="#features"
                 className="flex items-center text-lg font-medium transition-colors hover:text-foreground/80 text-foreground/60"
@@ -50,7 +52,7 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
             {status === "authenticated" && (
-              <Button variant="outline" size="sm" className="mr-2">
+              <Button variant="outline" size="sm" className="mr-2 hidden sm:flex">
                 <Link
                   href="/dashboards"
                   className="flex items-center space-x-2"
@@ -64,18 +66,71 @@ export default function LandingPage() {
             )}
             <nav className="flex items-center space-x-2">
               <AuthButton />
+              <button
+                className="md:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-700"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileMenuOpen}
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
             </nav>
           </div>
         </div>
+
+        {/* Mobile navigation menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200 dark:border-gray-700">
+              <Link
+                href="#features"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => setMobileMenuOpen(false)}
+                tabIndex={0}
+              >
+                Features
+              </Link>
+              <Link
+                href="#how-it-works"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => setMobileMenuOpen(false)}
+                tabIndex={0}
+              >
+                How It Works
+              </Link>
+              <Link
+                href="#pricing"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => setMobileMenuOpen(false)}
+                tabIndex={0}
+              >
+                Pricing
+              </Link>
+              {status === "authenticated" && (
+                <Link
+                  href="/dashboards"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={() => setMobileMenuOpen(false)}
+                  tabIndex={0}
+                >
+                  <div className="flex items-center">
+                    <Layout className="h-4 w-4 mr-2" />
+                    <span>Dashboards</span>
+                  </div>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </header>
       <main className="flex-1">
         {status === "authenticated" && (
           <div className="container mt-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/40 dark:to-green-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800 shadow-sm">
-            <p className="text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+            <p className="text-emerald-700 dark:text-emerald-300 flex items-center gap-2 text-sm sm:text-base">
               <svg className="h-5 w-5 text-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 6 9 17l-5-5" />
               </svg>
-              Signed in as <span className="font-semibold">{session?.user?.email}</span>
+              Signed in as <span className="font-semibold truncate max-w-[200px] sm:max-w-none">{session?.user?.email}</span>
             </p>
           </div>
         )}
@@ -84,7 +139,7 @@ export default function LandingPage() {
             <Badge className="px-3.5 py-1.5 text-sm font-medium bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/40 dark:to-blue-950/30 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300">
               Understand GitHub repositories like never before
             </Badge>
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center mx-auto w-full bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300">
+            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-center mx-auto w-full bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300">
               Univer Github Analyzer
             </h1>
             <p className="max-w-[42rem] mx-auto leading-normal text-center text-muted-foreground sm:text-xl sm:leading-8">
@@ -98,20 +153,22 @@ export default function LandingPage() {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" className="shadow-sm">
-                <Link href="#features" tabIndex={0} aria-label="Learn more about features">Learn More</Link>
+                <Link href="#features" className="flex items-center" tabIndex={0} aria-label="Learn more about features">
+                  Learn More
+                </Link>
               </Button>
             </div>
           </div>
         </section>
         <section className="container space-y-6 py-8 md:py-12 lg:py-24" id="features">
           <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
-            <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-5xl text-center mx-auto w-full">Powerful GitHub Analytics</h2>
-            <p className="max-w-[85%] mx-auto leading-normal text-center text-muted-foreground sm:text-lg sm:leading-7">
+            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl text-center mx-auto w-full">Powerful GitHub Analytics</h2>
+            <p className="max-w-[95%] md:max-w-[85%] mx-auto leading-normal text-center text-muted-foreground sm:text-lg sm:leading-7">
               Univer Github Analyzer provides comprehensive insights into any open source repository, helping you
               understand project health, popularity, and development activity.
             </p>
           </div>
-          <div className="mx-auto grid justify-center gap-6 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
+          <div className="mx-auto grid justify-center gap-6 grid-cols-1 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
             <Card className="group border-indigo-100 dark:border-indigo-800/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 hover:shadow-md overflow-hidden">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Repository Summaries</CardTitle>
@@ -190,55 +247,57 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-grid-slate-200 dark:bg-grid-slate-800 bg-[center_top_-1px] opacity-10"></div>
           <div className="relative">
             <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
-              <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-5xl text-center mx-auto w-full">How It Works</h2>
-              <p className="max-w-[85%] mx-auto leading-normal text-center text-muted-foreground sm:text-lg sm:leading-7">
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl text-center mx-auto w-full">How It Works</h2>
+              <p className="max-w-[95%] md:max-w-[85%] mx-auto leading-normal text-center text-muted-foreground sm:text-lg sm:leading-7">
                 Get started in minutes and gain valuable insights into any GitHub repository
               </p>
             </div>
-            <div className="mx-auto grid justify-center gap-6 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3 mt-8">
-              <div className="relative overflow-hidden rounded-lg border bg-background p-2 group hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 hover:shadow-md">
-                <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
-                  <div className="space-y-2">
-                    <h3 className="font-bold">1. Connect Your GitHub</h3>
+            <div className="mx-auto grid justify-center gap-6 grid-cols-1 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3 mt-8">
+              <div className="relative overflow-hidden rounded-lg border bg-background p-2 group hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 hover:shadow-md h-full">
+                <div className="flex flex-col h-full rounded-md p-6">
+                  <div className="mb-4">
+                    <h3 className="font-bold text-lg mb-2">1. Connect Your GitHub</h3>
                     <p className="text-sm text-muted-foreground">
                       Sign up and connect your GitHub account to get started
                     </p>
                   </div>
-                  <div className="rounded-full w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                  <div className="mt-auto rounded-full w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                     <Github className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                   </div>
                 </div>
               </div>
-              <div className="relative overflow-hidden rounded-lg border bg-background p-2 group hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 hover:shadow-md">
-                <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
-                  <div className="space-y-2">
-                    <h3 className="font-bold">2. Add Repositories</h3>
+              <div className="relative overflow-hidden rounded-lg border bg-background p-2 group hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 hover:shadow-md h-full">
+                <div className="flex flex-col h-full rounded-md p-6">
+                  <div className="mb-4">
+                    <h3 className="font-bold text-lg mb-2">2. Add Repositories</h3>
                     <p className="text-sm text-muted-foreground">
                       Add any public GitHub repositories you want to analyze
                     </p>
                   </div>
-                  <div className="rounded-full w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                  <div className="mt-auto rounded-full w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                     <GitPullRequest className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                   </div>
                 </div>
               </div>
-              <div className="relative overflow-hidden rounded-lg border bg-background p-2 group hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 hover:shadow-md">
-                <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
-                  <div className="space-y-2">
-                    <h3 className="font-bold">3. Get Insights</h3>
+              <div className="relative overflow-hidden rounded-lg border bg-background p-2 group hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 hover:shadow-md h-full">
+                <div className="flex flex-col h-full rounded-md p-6">
+                  <div className="mb-4">
+                    <h3 className="font-bold text-lg mb-2">3. Get Insights</h3>
                     <p className="text-sm text-muted-foreground">
                       Receive detailed analytics and insights about your repositories
                     </p>
                   </div>
-                  <div className="rounded-full w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                  <div className="mt-auto rounded-full w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                     <BarChart3 className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                   </div>
                 </div>
               </div>
             </div>
-            <div className="mx-auto text-center md:max-w-[58rem]">
-              <Button size="lg" className="mt-4 shadow-lg shadow-indigo-500/20">
-                <Link href="/signup" tabIndex={0} aria-label="Try our platform now">Try It Now</Link>
+            <div className="mx-auto text-center mt-10">
+              <Button size="lg" className="shadow-lg shadow-indigo-500/20">
+                <Link href="/signup" className="flex items-center" tabIndex={0} aria-label="Try our platform now">
+                  Try It Now
+                </Link>
               </Button>
             </div>
           </div>
@@ -310,8 +369,12 @@ export default function LandingPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full">
-                  <Link href="/signup" className="w-full" tabIndex={0} aria-label="Get started with free plan">Get Started</Link>
+                <Button
+                  className="w-full"
+                  onClick={() => window.location.href = '/signup'}
+                  aria-label="Get started with free plan"
+                >
+                  Get Started
                 </Button>
               </CardFooter>
             </Card>
@@ -410,8 +473,12 @@ export default function LandingPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full">
-                  <Link href="/signup" className="w-full" tabIndex={0} aria-label="Get started with pro plan">Get Started</Link>
+                <Button
+                  className="w-full"
+                  onClick={() => window.location.href = '/signup'}
+                  aria-label="Get started with pro plan"
+                >
+                  Get Started
                 </Button>
               </CardFooter>
             </Card>
@@ -521,8 +588,13 @@ export default function LandingPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" variant="outline">
-                  <Link href="/contact" className="w-full" tabIndex={0} aria-label="Contact sales for enterprise plan">Contact Sales</Link>
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => window.location.href = '/contact'}
+                  aria-label="Contact sales for enterprise plan"
+                >
+                  Contact Sales
                 </Button>
               </CardFooter>
             </Card>
@@ -543,21 +615,44 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
-      <footer className="border-t py-6 md:py-0">
-        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-          <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-            <Github className="h-6 w-6" />
-            <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-              &copy; {new Date().getFullYear()} Univer Github Analyzer. All rights reserved.
-            </p>
+      <footer className="border-t border-gray-200 dark:border-gray-800 py-10 px-4 md:px-8">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="font-semibold text-lg mb-3">Univer Github Analyzer</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Powerful insights for GitHub repositories. Monitor stars, PRs, and releases.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-3">Product</h4>
+              <ul className="space-y-2">
+                <li><Link href="#features" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" tabIndex={0}>Features</Link></li>
+                <li><Link href="#pricing" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" tabIndex={0}>Pricing</Link></li>
+                <li><Link href="#" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" tabIndex={0}>Documentation</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium mb-3">Company</h4>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" tabIndex={0}>About Us</Link></li>
+                <li><Link href="#" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" tabIndex={0}>Blog</Link></li>
+                <li><Link href="#" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" tabIndex={0}>Careers</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium mb-3">Legal</h4>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" tabIndex={0}>Privacy Policy</Link></li>
+                <li><Link href="#" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" tabIndex={0}>Terms of Service</Link></li>
+                <li><Link href="#" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" tabIndex={0}>Cookie Policy</Link></li>
+              </ul>
+            </div>
           </div>
-          <div className="flex gap-4">
-            <Link href="/terms" className="text-sm text-muted-foreground underline underline-offset-4" tabIndex={0} aria-label="Terms of service">
-              Terms
-            </Link>
-            <Link href="/privacy" className="text-sm text-muted-foreground underline underline-offset-4" tabIndex={0} aria-label="Privacy policy">
-              Privacy
-            </Link>
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
+            <p className="text-sm text-center text-gray-500 dark:text-gray-400">
+              © {new Date().getFullYear()} Univer Github Analyzer. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>

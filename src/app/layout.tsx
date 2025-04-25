@@ -1,5 +1,5 @@
 import { NotificationProvider } from '@/components/Notification';
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -19,6 +19,14 @@ export const metadata: Metadata = {
   description:
     "Get powerful insights, summaries, and analytics for any GitHub repository. Track stars, discover cool facts, monitor important PRs, and stay updated on version releases.",
 };
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+}
 
 export default function RootLayout({
   children,
