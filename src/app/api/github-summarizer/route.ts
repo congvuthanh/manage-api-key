@@ -1,5 +1,6 @@
 import { validateAndCheckRateLimit } from "@/lib/api-keys";
 import { createSummarizationChain } from "@/lib/chain";
+import { getGitHubRepoDetails } from "@/lib/github";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -21,15 +22,19 @@ export async function POST(request: NextRequest) {
       return validation.response;
     }
     
-    const readmeContent = await getGitHubReadme(githubUrl);
+    const repoDetails = await getGitHubRepoDetails(githubUrl);
     
     // Use the LangChain summarization chain
-    const summaryData = await createSummarizationChain(readmeContent);
+    const summaryData = await createSummarizationChain(repoDetails.readmeContent);
 
-    // Return just the summary and cool_facts for successful response
+    // Return the summary, cool_facts, and repository details
     return NextResponse.json({
       summary: summaryData.summary,
-      cool_facts: summaryData.cool_facts
+      cool_facts: summaryData.cool_facts,
+      stars: repoDetails.stars,
+      latest_version: repoDetails.latestVersion,
+      website_url: repoDetails.websiteUrl,
+      license: repoDetails.license
     });
     
   } catch (error) {
@@ -38,45 +43,6 @@ export async function POST(request: NextRequest) {
       { message: "Server error" },
       { status: 500 }
     );
-  }
-} 
-
-// Function to fetch README content from GitHub repository
-async function getGitHubReadme(githubUrl: string): Promise<string> {
-  try {
-    // Extract owner and repo from GitHub URL
-    const urlParts = githubUrl
-      .replace('https://github.com/', '')
-      .replace('.git', '')
-      .split('/');
-    
-    if (urlParts.length !== 2) {
-      throw new Error('Invalid GitHub repository URL format');
-    }
-
-    const [owner, repo] = urlParts;
-
-    // Fetch README content using GitHub API
-    const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/readme`,
-      {
-        headers: {
-          'Accept': 'application/vnd.github.raw',
-          'X-GitHub-Api-Version': '2022-11-28'
-        }
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch README: ${response.statusText}`);
-    }
-
-    const readmeContent = await response.text();
-    return readmeContent;
-
-  } catch (error) {
-    console.error('Error fetching GitHub README:', error);
-    throw new Error('Failed to fetch repository README');
   }
 }
 
